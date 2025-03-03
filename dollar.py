@@ -1,3 +1,4 @@
+
 import os
 import glob
 
@@ -75,10 +76,20 @@ def process_files_in_directory(directory):
                 # 如果是多行公式，去掉换行符
                 if dollar_content.startswith("$$") and dollar_content.endswith("$$"):
                     dollar_content = dollar_content.replace("\n", "")
-                # 拼接 {% raw %} 和 {% endraw %}
-                new_post_str += (
-                    u_post_str[:start] + "{% raw %}" + dollar_content + "{% endraw %}"
-                )
+
+                # 检测是否包含 "{{" 或 "}}"
+                if "{{" in dollar_content or "}}" in dollar_content:
+                    # 拼接 {% raw %} 和 {% endraw %}（只在包含 {{ 或 }} 时才包裹）
+                    new_post_str += (
+                        u_post_str[:start]
+                        + "{% raw %}"
+                        + dollar_content
+                        + "{% endraw %}"
+                    )
+                else:
+                    # 如果不包含 {{ 或 }}，直接保留原内容
+                    new_post_str += u_post_str[:start] + dollar_content
+
                 u_post_str = u_post_str[end:]
             else:
                 new_post_str += u_post_str
