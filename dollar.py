@@ -70,8 +70,15 @@ def process_files_in_directory(directory):
             if ret:
                 start = pos_pair[0]
                 end = pos_pair[1]
-                new_post_str += u_post_str[:start] + "{% raw %}"
-                new_post_str += u_post_str[start:end] + "{% endraw %}"
+                # 提取 $...$ 或 $$...$$ 包裹的内容
+                dollar_content = u_post_str[start:end]
+                # 如果是多行公式，去掉换行符
+                if dollar_content.startswith("$$") and dollar_content.endswith("$$"):
+                    dollar_content = dollar_content.replace("\n", "")
+                # 拼接 {% raw %} 和 {% endraw %}
+                new_post_str += (
+                    u_post_str[:start] + "{% raw %}" + dollar_content + "{% endraw %}"
+                )
                 u_post_str = u_post_str[end:]
             else:
                 new_post_str += u_post_str
